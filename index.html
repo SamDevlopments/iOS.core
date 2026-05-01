@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.umd.js"></script>
+    <title>Photo Selector UI</title>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="header">
+        <div class="selection-count">0 Photos Selected</div>
+        <button class="options-btn">Options <span>&rsaquo;</span></button>
+        <button class="reload-btn" id="reloadBtn" title="Reload">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+        </button>
+    </header>
+
+    <div class="photo-carousel">
+        <div class="carousel-container">
+            <div class="photo-card upload-card" data-index="0">
+                <div class="upload-content">
+                    <svg class="upload-icon" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="upload-text">Upload</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <button class="action-item">
+            <span>Copy Photo</span>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        </button>
+    </div>
+</div>
+
+<!-- iOS-style Error Alert -->
+<div class="error-alert" id="errorAlert">
+    <div class="error-backdrop"></div>
+    <div class="error-container">
+        <div class="error-title">Error</div>
+        <div class="error-message">Please upload a background image first.</div>
+        <div class="error-divider"></div>
+        <div class="error-button" id="errorOkButton">OK</div>
+    </div>
+</div>
+
+<!-- Global Subject Layer (above everything) -->
+<div class="subject-layer" id="subjectLayer"></div>
+
+<!-- Quick Actions Menu -->
+<div class="quick-actions-menu" id="quickActionsMenu">
+    <div class="menu-backdrop"></div>
+    <div class="menu-container">
+        <div class="menu-item" id="backgroundOption">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            <span>Background</span>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="subjectOption" disabled>
+            <svg class="menu-icon" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span>Subject</span>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="closeMenu">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            <span>Close</span>
+        </div>
+    </div>
+</div>
+
+<!-- Subject Actions Menu - Auto-enabled, no manual interaction needed -->
+<div class="subject-actions-menu" id="subjectActionsMenu">
+    <div class="menu-backdrop"></div>
+    <div class="menu-container">
+        <div class="menu-item" id="closeSubjectMenu">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            <span>Close</span>
+        </div>
+    </div>
+</div>
+
+<!-- Selection Actions Menu -->
+<div class="selection-actions-menu" id="selectionActionsMenu">
+    <div class="menu-backdrop"></div>
+    <div class="menu-container">
+        <div class="menu-item" id="duplicateSelectionOption">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+            </svg>
+            <span>Duplicate</span>
+        </div>
+        <div class="menu-item" id="deleteSelectionOption">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+            <span>Delete</span>
+        </div>
+        <div class="menu-item" id="closeSelectionMenu">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            <span>Close</span>
+        </div>
+    </div>
+</div>
+
+<!-- Options Menu -->
+<div class="options-menu" id="optionsMenu">
+    <div class="menu-backdrop"></div>
+    <div class="menu-container">
+        <div class="menu-header">Options</div>
+        
+        <!-- Selection Section -->
+        <div class="menu-section" id="selectionSection">
+            <div class="menu-item section-header" data-section="selectionSection">
+                <div class="menu-row">
+                    <span>Selection</span>
+                    <svg class="chevron-icon" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="section-content" style="display: none;">
+                <div class="menu-item">
+                    <div class="menu-row">
+                        <span>Border</span>
+                        <select class="selection-dropdown" id="borderTypeSelect">
+                            <option value="none">None</option>
+                            <option value="dashed" selected>Dashed</option>
+                            <option value="broken">Broken</option>
+                            <option value="phantom">Phantom</option>
+                            <option value="dash-dot">Dash-dot</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-row">
+                        <span>Handle</span>
+                        <select class="selection-dropdown" id="handleTypeSelect">
+                            <option value="none">None</option>
+                            <option value="rectangle" selected>Rectangle</option>
+                            <option value="circle">Circle</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-separator"></div>
+        
+        <!-- Accent Color Section -->
+        <div class="menu-section" id="accentSection">
+            <div class="menu-item section-header" data-section="accentSection">
+                <div class="menu-row">
+                    <span>Accent Color</span>
+                    <svg class="chevron-icon" viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="section-content" style="display: none;">
+                <div class="menu-item">
+                    <div class="menu-row">
+                        <span>Current Color</span>
+                        <div class="accent-preview" id="accentPreview"></div>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="color-palette" id="colorPalette">
+                        <div class="color-option" data-color="#007AFF" style="background: #007AFF"></div>
+                        <div class="color-option" data-color="#FF3B30" style="background: #FF3B30"></div>
+                        <div class="color-option" data-color="#34C759" style="background: #34C759"></div>
+                        <div class="color-option" data-color="#FF9500" style="background: #FF9500"></div>
+                        <div class="color-option" data-color="#AF52DE" style="background: #AF52DE"></div>
+                        <div class="color-option" data-color="#FF2D92" style="background: #FF2D92"></div>
+                        <div class="color-option" data-color="#5AC8FA" style="background: #5AC8FA"></div>
+                        <div class="color-option" data-color="#FFCC00" style="background: #FFCC00"></div>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-row">
+                        <span>Custom Color</span>
+                        <div class="custom-color-wrapper">
+                            <input type="color" id="customColorPicker" value="#007AFF" class="custom-color-picker">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-separator"></div>
+        
+        <div class="menu-item" id="closeOptionsMenu">
+            <span>Close</span>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="backgroundInput" accept="image/*" style="display: none;">
+<input type="file" id="subjectInput" accept="image/*" style="display: none;">
+<input type="file" id="aiModeInput" accept="image/*" style="display: none;">
+
+<script src="script.js"></script>
+</body>
+</html>
