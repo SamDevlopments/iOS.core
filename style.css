@@ -489,14 +489,24 @@ letter-spacing: -0.4px;
 transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .quick-actions-menu,
-.subject-actions-menu,
-.selection-actions-menu {
+.subject-actions-menu {
 position: fixed;
 top: 0;
 left: 0;
 right: 0;
 bottom: 0;
 z-index: 100000;
+display: none;
+animation: fadeIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.selection-actions-menu {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+z-index: 100002;
 display: none;
 animation: fadeIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -520,17 +530,23 @@ display: block;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
 }
 
-/* Prevent blur on cutout containers and transform overlays when menus are open */
+/* Add blur class to body when menus are open */
+body.menu-open .app-container {
+    filter: blur(20px);
+    -webkit-filter: blur(20px);
+}
+
+/* Create new rendering context for subject layer to prevent blur */
+.subject-layer {
+    transform: translateZ(0);
+    z-index: 100001 !important;
+}
+
+/* Prevent blur on cutout containers when menus are open */
 .cutout-container {
-    isolation: isolate;
-}
-
-.image-transform-overlay {
-    isolation: isolate;
+    transform: translateZ(0);
 }
 
 .menu-container {
@@ -542,6 +558,7 @@ display: block;
     overflow: hidden;
     min-width: 200px;
     animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateZ(0);
 }
 
 .menu-item {
