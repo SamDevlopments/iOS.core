@@ -489,24 +489,14 @@ letter-spacing: -0.4px;
 transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .quick-actions-menu,
-.subject-actions-menu {
-position: fixed;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-z-index: 100000;
-display: none;
-animation: fadeIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
+.subject-actions-menu,
 .selection-actions-menu {
 position: fixed;
 top: 0;
 left: 0;
 right: 0;
 bottom: 0;
-z-index: 100002;
+z-index: 100003; /* Above transform overlays */
 display: none;
 animation: fadeIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -530,23 +520,26 @@ display: block;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
-/* Add blur class to body when menus are open */
-body.menu-open .app-container {
-    filter: blur(20px);
-    -webkit-filter: blur(20px);
-}
-
-/* Create new rendering context for subject layer to prevent blur */
-.subject-layer {
-    transform: translateZ(0);
-    z-index: 100001 !important;
-}
-
-/* Prevent blur on cutout containers when menus are open */
+/* Prevent blur on cutout containers and transform overlays when menus are open */
 .cutout-container {
     transform: translateZ(0);
+    will-change: transform;
+    filter: none;
+    -webkit-filter: none;
+    z-index: 100001; /* Above menu backdrop */
+}
+
+.image-transform-overlay {
+    transform: translateZ(0);
+    will-change: transform;
+    filter: none;
+    -webkit-filter: none;
+    z-index: 100002; /* Above cutout containers */
+    position: relative; /* Ensure stacking context works properly */
 }
 
 .menu-container {
@@ -558,7 +551,6 @@ body.menu-open .app-container {
     overflow: hidden;
     min-width: 200px;
     animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    transform: translateZ(0);
 }
 
 .menu-item {
@@ -711,7 +703,7 @@ body.menu-open .app-container {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 100000;
+    z-index: 100003; /* Above transform overlays */
     display: none;
     animation: fadeIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }

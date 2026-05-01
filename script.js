@@ -356,7 +356,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function showSelectionActionsMenu(x, y) {
         const menuContainer = selectionActionsMenu.querySelector('.menu-container');
         selectionActionsMenu.classList.add('show');
-        document.body.classList.add('menu-open');
         
         // Position menu exactly at touch/click location
         const menuWidth = 200;
@@ -380,7 +379,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function hideSelectionActionsMenu() {
         selectionActionsMenu.classList.remove('show');
-        document.body.classList.remove('menu-open');
     }
     
     function duplicateSelection() {
@@ -441,7 +439,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     border: ${borderStyle !== 'none' ? `${borderStyle} ${accentColor}` : 'none'};
                     border-radius: 8px;
                     cursor: move;
-                    z-index: 9999;
                     pointer-events: auto;
                     animation: ${animationStyle};
                 `;
@@ -546,12 +543,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function showOptionsMenu() {
         optionsMenu.classList.add('show');
-        document.body.classList.add('menu-open');
     }
     
     function hideOptionsMenu() {
         optionsMenu.classList.remove('show');
-        document.body.classList.remove('menu-open');
     }
     
     function loadImageForSelection(file) {
@@ -640,7 +635,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 border: ${borderStyle !== 'none' ? `${borderStyle} ${accentColor}` : 'none'};
                 border-radius: 8px;
                 cursor: move;
-                z-index: 9999;
                 pointer-events: none;
                 animation: ${animationStyle};
             `;
@@ -828,7 +822,6 @@ document.addEventListener('DOMContentLoaded', function() {
             border: ${borderStyle !== 'none' ? `${borderStyle} ${accentColor}` : 'none'};
             border-radius: 8px;
             cursor: move;
-            z-index: 9999;
             pointer-events: auto;
             animation: ${animationStyle};
         `;
